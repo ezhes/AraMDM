@@ -1,9 +1,6 @@
 package WebhookServer
 
-import (
-	"bytes"
-	"howett.net/plist"
-)
+import "fmt"
 
 func (server *WebhookServer) handleEvent(event Event) {
 	switch event.Topic {
@@ -40,20 +37,27 @@ func (server *WebhookServer) handleCheckOut(event Event) {
 
 /* ACK events. This includes true ACKs and command responses */
 func (server *WebhookServer) handleConnect(event Event) {
-	s := string(event.AcknowledgeEvent.RawPayload)
-	println(s)
-	//data := decodePLIST(event.AcknowledgeEvent.RawPayload)
-	//fmt.Printf("%+v", data)
+	//s := string(event.AcknowledgeEvent.RawPayload)
+	//println(s)
+	sparse := parseAcknowledge(event.AcknowledgeEvent.RawPayload)
+	if sparse == nil {
+		return
+	}
+
+	switch sparse.Status {
+	case ACKNOWLEDGED:
+		server.handleCommandAcknowledgement(*sparse)
+		break
+	case IDLE, NOT_NOW:
+		break
+	default:
+		server.log.Printf("Not handling state " + sparse.Status.String())
+	}
+}
+
+func (server *WebhookServer) handleCommandAcknowledgement(sparse AcknowledgeSparse) {
+	fmt.Printf("%+v", sparse.AllKeys)
+
 }
 
 /* Utils. */
-func decodePLIST(data []byte) interface{} {
-	buf := bytes.NewReader(data)
-	var obj interface{}
-	err := plist.NewDecoder(buf).Decode(obj)
-	if err != nil {
-		return nil
-	}
-
-	return obj
-}
