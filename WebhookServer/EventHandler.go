@@ -1,7 +1,5 @@
 package WebhookServer
 
-import "fmt"
-
 func (server *WebhookServer) handleEvent(event Event) {
 	switch event.Topic {
 	case "mdm.Authenticate":
@@ -34,30 +32,3 @@ func (server *WebhookServer) handleTokenUpdate(event Event) {
 func (server *WebhookServer) handleCheckOut(event Event) {
 	server.log.Fatal("NOT IMPL")
 }
-
-/* ACK events. This includes true ACKs and command responses */
-func (server *WebhookServer) handleConnect(event Event) {
-	//s := string(event.AcknowledgeEvent.RawPayload)
-	//println(s)
-	sparse := parseAcknowledge(event.AcknowledgeEvent.RawPayload)
-	if sparse == nil {
-		return
-	}
-
-	switch sparse.Status {
-	case ACKNOWLEDGED:
-		server.handleCommandAcknowledgement(*sparse)
-		break
-	case IDLE, NOT_NOW:
-		break
-	default:
-		server.log.Printf("Not handling state " + sparse.Status.String())
-	}
-}
-
-func (server *WebhookServer) handleCommandAcknowledgement(sparse AcknowledgeSparse) {
-	fmt.Printf("%+v", sparse.AllKeys)
-
-}
-
-/* Utils. */

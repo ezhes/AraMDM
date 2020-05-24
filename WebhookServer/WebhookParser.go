@@ -1,9 +1,12 @@
 package WebhookServer
 
 import (
+	"fmt"
 	"howett.net/plist"
 	"time"
 )
+
+type StringAnyMap map[string]interface{}
 
 type Event struct {
 	Topic     string    `json:"topic"`
@@ -28,6 +31,114 @@ type CheckinEvent struct {
 	RawPayload []byte            `json:"raw_payload"`
 }
 
+type Command struct {
+	UDID        string
+	CommandUUID string
+	Status      string /* Use acknowledgeStateStringToEnum */
+
+	/* Payloads -- most will be nil, meaning they are not this message type */
+	QueryResponses *QueryResponsesT
+}
+
+type QueryResponsesT struct {
+	AppAnalyticsEnabled             *bool
+	AutomaticAppInstallationEnabled *bool
+	AutomaticCheckEnabled           *bool
+	AutomaticOSInstallationEnabled  *bool
+	AutomaticSecurityUpdatesEnabled *bool
+	AvailableDeviceCapacity         *float64
+	AwaitingConfiguration           *bool
+	BackgroundDownloadEnabled       *bool
+	BatteryLevel                    *float64
+	BluetoothMAC                    *string
+	BuildVersion                    *string
+	CarrierSettingsVersion          *string
+	CatalogURL                      *string
+	CellularTechnology              *int
+	CurrentCarrierNetwork           *string
+	CurrentMCC                      *string
+	CurrentMNC                      *string
+	DataRoamingEnabled              *bool
+	DeviceCapacity                  *float64
+	DeviceID                        *string
+	DeviceName                      *string
+	DiagnosticSubmissionEnabled     *bool
+	EASDeviceIdentifier             *string
+	EthernetMACs                    *[]string
+	HostName                        *string
+	ICCID                           *string
+	IMEI                            *string
+	IsActivationLockEnabled         *bool
+	IsCloudBackupEnabled            *bool
+	IsDefaultCatalog                *bool
+	IsDeviceLocatorServiceEnabled   *bool
+	IsDoNotDisturbInEffect          *bool
+	IsMDMLostModeEnabled            *bool
+	IsMultiUser                     *bool
+	IsNetworkTethered               *bool
+	IsRoaming                       *bool
+	IsSupervised                    *bool
+	Languages                       *[]string
+	LastCloudBackupDate             *time.Time
+	LocalHostName                   *string
+	Locales                         *[]string
+	MDMOptions                      *MDMOptionsT
+	MEID                            *string
+	MaximumResidentUsers            *int
+	Model                           *string
+	ModelName                       *string
+	ModemFirmwareVersion            *string
+	OSUpdateSettings                *OSUpdateSettingsT
+	OSVersion                       *string
+	OrganizationInfo                *string
+	PerformPeriodicCheck            *bool
+	PersonalHotspotEnabled          *bool
+	PhoneNumber                     *string
+	PreviousScanDate                *time.Time
+	PreviousScanResult              *int
+	ProductName                     *string
+	SIMMCC                          *string
+	SerialNumber                    *string
+	ServiceSubscriptions            *[]ServiceSubscriptionsT
+	SubscriberCarrierNetwork        *string
+	SubscriberMCC                   *string
+	SubscriberMNC                   *string
+	UDID                            *string
+	VoiceRoamingEnabled             *bool
+	WiFiMAC                         *string
+	iTunesStoreAccountHash          *string
+	iTunesStoreAccountIsActive      *bool
+}
+type MDMOptionsT struct {
+	ActivationLockAllowedWhileSupervised bool
+}
+type OSUpdateSettingsT struct {
+	CatalogURL                      string
+	IsDefaultCatalog                bool
+	PreviousScanDate                time.Time
+	PreviousScanResult              int
+	PerformPeriodicCheck            bool
+	AutomaticCheckEnabled           bool
+	BackgroundDownloadEnabled       bool
+	AutomaticAppInstallationEnabled bool
+	AutomaticOSInstallationEnabled  bool
+	AutomaticSecurityUpdatesEnabled bool
+}
+type ServiceSubscriptionsT struct {
+	CarrierSettingsVersion string
+	CurrentCarrierNetwork  string
+	CurrentMCC             string
+	CurrentMNC             string
+	ICCID                  string
+	IMEI                   string
+	IsDataPreferred        bool
+	IsRoaming              bool
+	IsVoicePreferred       bool
+	Label                  string
+	LabelID                string
+	PhoneNumber            string
+	Slot                   string
+}
 type AcknowledgeEventState int
 
 const (
@@ -61,71 +172,14 @@ func acknowledgeStateStringToEnum(state string) AcknowledgeEventState {
 	}
 }
 
-type AcknowledgeSparse struct {
-	UDID        string
-	CommandUUID string
-	Status      AcknowledgeEventState
-	AllKeys     map[string]interface{}
-}
-
-func parseAcknowledge(data []byte) *AcknowledgeSparse {
-	mapData := decodePLIST(data)
-	if mapData == nil {
-		return nil
-	}
-
-	udid := mapStringSafeGet(mapData, "UDID")
-	if udid == nil {
-		activeServer.log.Printf("Could not extract UDID")
-		return nil
-	}
-
-	var commandUUID string
-	commandUUIDPtr := mapStringSafeGet(mapData, "CommandUUID")
-	if commandUUIDPtr == nil {
-		//certain commands will not have a UUID, stuff it with DNE uuid
-		commandUUID = "AraMDM__INTERNAL__COMMAND_NOT_STAPLED"
-	} else {
-		commandUUID = *commandUUIDPtr
-	}
-
-	status := mapStringSafeGet(mapData, "Status")
-	if status == nil {
-		activeServer.log.Printf("Could not extract Status")
-		return nil
-	}
-
-	return &AcknowledgeSparse{
-		UDID:        *udid,
-		CommandUUID: commandUUID,
-		Status:      acknowledgeStateStringToEnum(*status),
-		AllKeys:     mapData,
-	}
-}
-
-/* Attempts to lookup a key for a string value. Returns nil if not found or not a string. */
-func mapStringSafeGet(source map[string]interface{}, key string) *string {
-	buf, ok := source[key]
-	if !ok {
-		return nil
-	}
-
-	str, ok := buf.(string)
-	if !ok {
-		return nil
-	}
-
-	return &str
-}
-
-/* Generically decode a PLIST. Returns nil on failure. */
-func decodePLIST(data []byte) map[string]interface{} {
-	var obj map[string]interface{}
+func parseAcknowledge(data []byte) *Command {
+	fmt.Println(string(data))
+	var obj Command
 	_, err := plist.Unmarshal(data, &obj)
 	if err != nil {
 		activeServer.log.Printf("Unable to decode PLIST: " + err.Error())
 		return nil
 	}
 
-	return obj
+	return &obj
 }

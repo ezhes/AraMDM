@@ -73,6 +73,11 @@ func mdmWebhook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 }
 
 func (server *WebhookServer) isWebhookRequesterValid(remoteAddr string) bool {
+	//empty expected address is for development check disable
+	if len(server.expectedSourceAddress) == 0 {
+		return true
+	}
+
 	requestParts := strings.Split(remoteAddr, ":")
 	if len(requestParts) != 2 {
 		server.log.Printf("Unable to parse remote addr " + remoteAddr)

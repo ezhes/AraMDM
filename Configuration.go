@@ -13,7 +13,8 @@ const (
 	MICROMDM_API_BASE_URL = ""
 
 	//The expected source for webhooks. This is used to prevent spoofing.
-	MICROMDM_EXPECTED_SRC = "192.168.1.30"
+	//If you want to disable this security check for development, use an empty string (insecure!)
+	MICROMDM_EXPECTED_SRC = ""
 	//Port at which the webhook server should communicate with (results in a webhook URL  http://0.0.0.0:<port>/ara-hook)
 	MICROMDM_WEBHOOK_PORT = 52801
 )
