@@ -32,12 +32,23 @@ type CheckinEvent struct {
 }
 
 type Command struct {
-	UDID        string
-	CommandUUID string
-	Status      string /* Use acknowledgeStateStringToEnum */
+	RequestType  string `json:"request_type,omitempty" plist:",omitempty"`
+	UDID         string
+	UserID       *string `json:"user_id,omitempty" plist:"UserID,omitempty"`
+	EnrollmentID *string `json:"enrollment_id,omitempty" plist:"EnrollmentID,omitempty"`
+	Status       string  /* Use acknowledgeStateStringToEnum */
+	CommandUUID  string
+	ErrorChain   []ErrorChainItem `json:"error_chain" plist:",omitempty"`
 
 	/* Payloads -- most will be nil, meaning they are not this message type */
 	QueryResponses *QueryResponsesT
+}
+
+type ErrorChainItem struct {
+	ErrorCode            int    `json:"error_code,omitempty"`
+	ErrorDomain          string `json:"error_domain,omitempty"`
+	LocalizedDescription string `json:"localized_description,omitempty"`
+	USEnglishDescription string `json:"us_english_description,omitempty"`
 }
 
 type QueryResponsesT struct {

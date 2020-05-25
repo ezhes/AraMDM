@@ -9,8 +9,8 @@ const (
 	/*
 		MicroMDM configuration
 	*/
-	//The base address for the API server
-	MICROMDM_API_BASE_URL = ""
+	//The base URL for the API server
+	MICROMDM_API_BASE_URL = "https://profiles.services.aero2x.eu"
 
 	//The expected source for webhooks. This is used to prevent spoofing.
 	//If you want to disable this security check for development, use an empty string (insecure!)
