@@ -3,7 +3,6 @@ package main
 import (
 	"AraMDM/MicroMDMAPI"
 	"AraMDM/WebhookServer"
-	_ "AraMDM/WebhookServer"
 	"log"
 	"os"
 )
