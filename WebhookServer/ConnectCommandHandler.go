@@ -1,7 +1,5 @@
 package WebhookServer
 
-import "fmt"
-
 const (
 	QUERY_RESPONSES = "QueryResponses"
 )
@@ -33,6 +31,10 @@ func (server *WebhookServer) handleConnect(event Event) {
 func (server *WebhookServer) handleCommandAcknowledgement(command Command) bool {
 	if command.QueryResponses != nil {
 		server.handleQueryResponse(command)
+	} else if command.CommandUUID != "" {
+		//KEEP THIS CASE LAST
+		//This is to catch empty acknowledges which are given when the device executes a command and just informs us that it did so
+		server.handleCommandCompletedOK(command)
 	} else {
 		return false
 	}
@@ -42,11 +44,17 @@ func (server *WebhookServer) handleCommandAcknowledgement(command Command) bool 
 
 func (server *WebhookServer) handleQueryResponse(command Command) {
 	server.log.Println("Got QueryResponse!")
-	server.log.Printf("Device name is %s\n", *command.QueryResponses.DeviceName)
+	if command.QueryResponses.BatteryLevel != nil {
+		server.log.Printf("Device name is %s and is charged to %.2f%%\n", *command.QueryResponses.DeviceName,
+			*command.QueryResponses.BatteryLevel*100)
+	} else {
+		server.log.Printf("Device name is %s\n", *command.QueryResponses.DeviceName)
+	}
+	server.log.Printf("%+v", command.QueryResponses)
+}
 
-	//server.log.Printf("%s is at %.2f%%", *command.QueryResponses.DeviceName, (*command.QueryResponses.BatteryLevel)*100)
-
-	fmt.Printf("%+v", command.QueryResponses)
+func (server *WebhookServer) handleCommandCompletedOK(command Command) {
+	server.log.Printf("Command %s completed without errors!\n", command.CommandUUID)
 }
 
 /* Utils. */
