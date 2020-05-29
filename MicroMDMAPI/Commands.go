@@ -1,5 +1,7 @@
 package MicroMDMAPI
 
+import "encoding/json"
+
 //FROM https://github.com/micromdm/micromdm/blob/e2acfb977e8c42976edd0a0b9b0e8fe49898d91d/mdm/mdm/command.go
 
 type CommandRequest struct {
@@ -280,4 +282,15 @@ type FileVaultUnlock struct {
 	Password                 string `plist:",omitempty" json:"password,omitempty"`
 	PrivateKeyExport         []byte `plist:",omitempty" json:"private_key_export,omitempty"`
 	PrivateKeyExportPassword string `plist:",omitempty" json:"private_key_export_password,omitempty"`
+}
+
+func (client *Client) ExecuteMDMCommand(command CommandRequest) (*CommandResponse, error) {
+	data, err := client.doAPIRequest("v1/commands", "POST", command)
+	if err != nil {
+		return nil, err
+	}
+
+	response := new(CommandResponse)
+	err = json.Unmarshal(data, &response)
+	return response, err
 }

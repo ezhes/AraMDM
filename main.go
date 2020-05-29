@@ -16,12 +16,21 @@ func main() {
 	ws.Launch(MICROMDM_WEBHOOK_PORT)
 
 	mAPI := MicroMDMAPI.New(MICROMDM_API_BASE_URL, MICROMDM_API_KEY, LOGGER_FLAGS)
+	resp, err := mAPI.GetDevices(MicroMDMAPI.ListDevicesOption{
+		Page:         0,
+		PerPage:      0,
+		FilterSerial: nil,
+		FilterUDID:   nil,
+	})
 
-	for _, val := range []string{"00008027-000638663C0A002E", "38CB5E49-FC09-5385-B36E-B45ECD740723",
-		"797566FD-5E51-5519-ACE9-7C299284BE11", "41696CD8-14D6-53A7-9261-063A1DAB80BC", "C02QP034GCN4",
-		"AFE80C90-BB10-5316-BFBD-F0CA142C6A7E", "10fe752672d74dfab11c82f1c68993aa1b03265b", "FK2VMKA9JCL8",
-		"901F4A5C-3AA1-58F4-8068-F659489F98A5", "C07WLGZGJYVX"} {
-		go checkin(*mAPI, val)
+	if err != nil {
+		println(err.Error())
+	} else if resp == nil {
+		println("no error and no response?")
+	} else {
+		for _, device := range *resp {
+			go checkin(*mAPI, device.UDID)
+		}
 	}
 
 	//resp, err :=

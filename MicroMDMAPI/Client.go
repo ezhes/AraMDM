@@ -42,17 +42,6 @@ func New(baseURL string, apiKey string, loggerFlags int) *Client {
 	return client
 }
 
-func (client *Client) ExecuteMDMCommand(command CommandRequest) (*CommandResponse, error) {
-	data, err := client.doAPIRequest("v1/commands", "POST", command)
-	if err != nil {
-		return nil, err
-	}
-
-	response := new(CommandResponse)
-	err = json.Unmarshal(data, &response)
-	return response, err
-}
-
 func (client *Client) doAPIRequest(path string, method string, body interface{}) ([]byte, error) {
 	var bodyReader io.Reader
 	if body != nil {
@@ -72,7 +61,7 @@ func (client *Client) doAPIRequest(path string, method string, body interface{})
 	}
 
 	req, _ := http.NewRequest("GET", client.baseURL+"/"+path, bodyReader)
-	req.Header.Add("User-Agent", "Peach-Panic")
+	req.Header.Add("User-Agent", "AraMDM")
 	req.SetBasicAuth("micromdm", client.apiKey)
 	req.Method = method
 
