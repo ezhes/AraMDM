@@ -56,11 +56,18 @@ func (client *Client) ExecuteMDMCommand(command CommandRequest) (*CommandRespons
 func (client *Client) doAPIRequest(path string, method string, body interface{}) ([]byte, error) {
 	var bodyReader io.Reader
 	if body != nil {
-		bodyData, err := json.Marshal(body)
+		var bodyData []byte
+		var err error
+		if command, ok := body.(CommandRequest); ok {
+			bodyData, err = command.MarshalJSON()
+		} else {
+			bodyData, err = json.Marshal(body)
+		}
+
 		if err != nil {
 			return nil, err
 		}
-		println(string(bodyData))
+		log.Println(string(bodyData))
 		bodyReader = bytes.NewBuffer(bodyData)
 	}
 

@@ -1,7 +1,6 @@
 package WebhookServer
 
 import (
-	"fmt"
 	"howett.net/plist"
 	"time"
 )
@@ -50,6 +49,8 @@ type ErrorChainItem struct {
 	LocalizedDescription string `json:"localized_description,omitempty"`
 	USEnglishDescription string `json:"us_english_description,omitempty"`
 }
+
+// Query response items
 
 type QueryResponsesT struct {
 	AppAnalyticsEnabled             *bool
@@ -184,7 +185,6 @@ func acknowledgeStateStringToEnum(state string) AcknowledgeEventState {
 }
 
 func parseAcknowledge(data []byte) *Command {
-	fmt.Println(string(data))
 	var obj Command
 	_, err := plist.Unmarshal(data, &obj)
 	if err != nil {

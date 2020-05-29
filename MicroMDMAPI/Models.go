@@ -13,8 +13,7 @@ type CommandResponse struct {
 }
 
 type CommandPayload struct {
-	CommandUUID string   `json:"command_uuid"`
-	Command     *Command `json:"command"`
+	CommandUUID string `json:"command_uuid"`
 }
 
 type Command struct {
