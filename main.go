@@ -16,33 +16,33 @@ func main() {
 	ws.Launch(MICROMDM_WEBHOOK_PORT)
 
 	mAPI := MicroMDMAPI.New(MICROMDM_API_BASE_URL, MICROMDM_API_KEY, LOGGER_FLAGS)
-	resp, err := mAPI.GetDevices(MicroMDMAPI.ListDevicesOption{
-		Page:         0,
-		PerPage:      0,
-		FilterSerial: nil,
-		FilterUDID:   nil,
-	})
+	//resp, err := mAPI.GetDevices(MicroMDMAPI.ListDevicesOption{
+	//	Page:         0,
+	//	PerPage:      0,
+	//	FilterSerial: nil,
+	//	FilterUDID:   nil,
+	//})
+	//
+	//if err != nil {
+	//	println(err.Error())
+	//} else if resp == nil {
+	//	println("no error and no response?")
+	//} else {
+	//	for _, device := range *resp {
+	//		go checkin(*mAPI, device.UDID)
+	//	}
+	//}
 
-	if err != nil {
-		println(err.Error())
-	} else if resp == nil {
-		println("no error and no response?")
-	} else {
-		for _, device := range *resp {
-			go checkin(*mAPI, device.UDID)
-		}
-	}
-
-	//resp, err :=
-	//	mAPI.ExecuteMDMCommand(MicroMDMAPI.CommandRequest{
-	//		UDID: "797566FD-5E51-5519-ACE9-7C299284BE11",
-	//		Command: &MicroMDMAPI.Command{
-	//			RequestType: "DeviceInformation",
-	//			DeviceInformation: &MicroMDMAPI.DeviceInformation{
-	//				Queries: []string{"DeviceName", "BatteryLevel"},
-	//			},
-	//		},
-	//	})
+	resp, err :=
+		mAPI.ExecuteMDMCommand(MicroMDMAPI.CommandRequest{
+			UDID: "797566FD-5E51-5519-ACE9-7C299284BE11",
+			Command: &MicroMDMAPI.Command{
+				RequestType: "DeviceInformation",
+				DeviceInformation: &MicroMDMAPI.DeviceInformation{
+					Queries: []string{"DeviceName", "BatteryLevel"},
+				},
+			},
+		})
 	//	mAPI.ExecuteMDMCommand(MicroMDMAPI.CommandRequest{
 	//	UDID:    "797566FD-5E51-5519-ACE9-7C299284BE11",
 	//	Command: &MicroMDMAPI.Command{
@@ -185,11 +185,11 @@ func main() {
 	//	},
 	//})
 
-	//if err != nil {
-	//	println(err.Error())
-	//} else if resp != nil {
-	//	fmt.Printf("Sent command %s\n", resp.Payload.CommandUUID)
-	//}
+	if err != nil {
+		println(err.Error())
+	} else if resp != nil {
+		fmt.Printf("Sent command %s\n", resp.Payload.CommandUUID)
+	}
 
 	runLoop()
 }

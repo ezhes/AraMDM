@@ -5,7 +5,8 @@ import "encoding/json"
 //FROM https://github.com/micromdm/micromdm/blob/e2acfb977e8c42976edd0a0b9b0e8fe49898d91d/mdm/mdm/command.go
 
 type CommandRequest struct {
-	UDID string `json:"udid"`
+	UDID        string  `json:"udid"`
+	CommandUUID *string `json:"command_uuid,omitempty"`
 	*Command
 }
 

@@ -43,7 +43,7 @@ func (server *WebhookServer) handleCommandAcknowledgement(command Command) bool 
 }
 
 func (server *WebhookServer) handleQueryResponse(command Command) {
-	server.log.Println("Got QueryResponse!")
+	server.log.Printf("Got QueryResponse: [%s]\n", command.CommandUUID)
 	if command.QueryResponses.BatteryLevel != nil {
 		server.log.Printf("Device name is %s and is charged to %.2f%%\n", *command.QueryResponses.DeviceName,
 			*command.QueryResponses.BatteryLevel*100)
